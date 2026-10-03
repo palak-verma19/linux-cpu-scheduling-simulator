@@ -1,0 +1,17 @@
+# Compiled executable
+scheduler
+
+# Object files
+*.o
+
+# Build directories
+build/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# IDE files
+.vscode/
+.idea/

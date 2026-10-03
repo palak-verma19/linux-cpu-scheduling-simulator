@@ -3,8 +3,8 @@
 
 using namespace std;
 
-void sjf(vector<Process>& processes,
-         vector<GanttEntry>& gantt) {
+void priorityScheduling(vector<Process>& processes,
+                         vector<GanttEntry>& gantt) {
 
     int n = processes.size();
     int completed = 0;
@@ -15,16 +15,16 @@ void sjf(vector<Process>& processes,
     while (completed < n) {
 
         int selectedIndex = -1;
-        int shortestBurst = 999999;
+        int highestPriority = 999999;
 
         for (int i = 0; i < n; i++) {
 
             if (!finished[i] &&
                 processes[i].arrivalTime <= currentTime &&
-                processes[i].burstTime < shortestBurst) {
+                processes[i].priority < highestPriority) {
 
-                shortestBurst =
-                    processes[i].burstTime;
+                highestPriority =
+                    processes[i].priority;
 
                 selectedIndex = i;
             }

@@ -2,19 +2,31 @@
 #include <vector>
 #include <iomanip>
 #include "../include/process.h"
-#include <algorithm>
 
 using namespace std;
 
+
 // Function declarations
-void fcfs(vector<Process>& processes);
-void sjf(vector<Process>& processes);
+void fcfs(vector<Process>& processes,
+          vector<GanttEntry>& gantt);
+
+void sjf(vector<Process>& processes,
+         vector<GanttEntry>& gantt);
+
+void priorityScheduling(vector<Process>& processes,
+                         vector<GanttEntry>& gantt);
+
+void roundRobin(vector<Process>& processes,
+                int quantum,
+                vector<GanttEntry>& gantt);
 
 
 // Display process performance
-void displayPerformance(vector<Process>& processes) {
+void displayPerformance(
+    const vector<Process>& processes) {
 
     cout << "\nPROCESS PERFORMANCE\n";
+
     cout << "-------------------------------------------------\n";
 
     cout << left
@@ -30,74 +42,80 @@ void displayPerformance(vector<Process>& processes) {
     for (const auto& p : processes) {
 
         cout << left
-             << setw(8) << ("P" + to_string(p.pid))
-             << setw(8) << p.arrivalTime
-             << setw(8) << p.burstTime
-             << setw(8) << p.completionTime
-             << setw(8) << p.turnaroundTime
-             << setw(8) << p.waitingTime
-             << setw(8) << p.responseTime
+             << setw(8)
+             << ("P" + to_string(p.pid))
+
+             << setw(8)
+             << p.arrivalTime
+
+             << setw(8)
+             << p.burstTime
+
+             << setw(8)
+             << p.completionTime
+
+             << setw(8)
+             << p.turnaroundTime
+
+             << setw(8)
+             << p.waitingTime
+
+             << setw(8)
+             << p.responseTime
+
              << endl;
     }
 }
 
 
 // Display Gantt Chart
-void displayGanttChart(vector<Process>& processes, string algorithm) {
+void displayGanttChart(
+    const vector<GanttEntry>& gantt,
+    const string& algorithm) {
 
-    // Sort processes according to completion time
-    // This gives the actual execution order
-    vector<Process> scheduled = processes;
+    cout << "\n\n"
+         << algorithm
+         << " GANTT CHART\n\n";
 
-    sort(scheduled.begin(), scheduled.end(),
-         [](const Process& a, const Process& b) {
-             return a.completionTime < b.completionTime;
-         });
-
-    cout << "\n\n" << algorithm << " GANTT CHART\n\n";
+    if (gantt.empty()) {
+        cout << "No execution data available.\n";
+        return;
+    }
 
     cout << " ";
 
-    for (const auto& p : scheduled) {
+    for (const auto& entry : gantt) {
         cout << "---------";
     }
 
     cout << "\n|";
 
-    for (const auto& p : scheduled) {
-        cout << "   P" << p.pid << "   |";
+    for (const auto& entry : gantt) {
+
+        cout << "   P"
+             << entry.pid
+             << "   |";
     }
 
     cout << "\n ";
 
-    for (const auto& p : scheduled) {
+    for (const auto& entry : gantt) {
         cout << "---------";
     }
 
     cout << "\n";
 
-    // Display timeline
-    int startTime = 0;
-
-    for (const auto& p : scheduled) {
-
-        int executionStart = p.completionTime - p.burstTime;
-
-        if (executionStart > startTime) {
-            startTime = executionStart;
-        }
-
-        cout << startTime << "\t";
-
-        startTime = p.completionTime;
+    for (const auto& entry : gantt) {
+        cout << entry.startTime << "\t";
     }
 
-    cout << startTime << "\n";
+    cout << gantt.back().endTime << "\n";
 }
 
 
 // Display average performance
-void displayAveragePerformance(vector<Process>& processes) {
+void displayAveragePerformance(
+    const vector<Process>& processes) {
 
     double totalWaitingTime = 0;
     double totalTurnaroundTime = 0;
@@ -105,9 +123,14 @@ void displayAveragePerformance(vector<Process>& processes) {
 
     for (const auto& p : processes) {
 
-        totalWaitingTime += p.waitingTime;
-        totalTurnaroundTime += p.turnaroundTime;
-        totalResponseTime += p.responseTime;
+        totalWaitingTime +=
+            p.waitingTime;
+
+        totalTurnaroundTime +=
+            p.turnaroundTime;
+
+        totalResponseTime +=
+            p.responseTime;
     }
 
     int n = processes.size();
@@ -115,16 +138,20 @@ void displayAveragePerformance(vector<Process>& processes) {
     cout << "\nPERFORMANCE ANALYSIS\n";
     cout << "----------------------------\n";
 
-    cout << fixed << setprecision(2);
+    cout << fixed
+         << setprecision(2);
 
     cout << "Average Waiting Time    : "
-         << totalWaitingTime / n << endl;
+         << totalWaitingTime / n
+         << endl;
 
     cout << "Average Turnaround Time : "
-         << totalTurnaroundTime / n << endl;
+         << totalTurnaroundTime / n
+         << endl;
 
     cout << "Average Response Time   : "
-         << totalResponseTime / n << endl;
+         << totalResponseTime / n
+         << endl;
 }
 
 
@@ -135,19 +162,31 @@ int main() {
     cout << "   LINUX CPU SCHEDULING SIMULATOR\n";
     cout << "========================================\n";
 
+
     int n;
 
     cout << "\nEnter number of processes: ";
     cin >> n;
 
+    if (n <= 0) {
+
+        cout << "\nInvalid number of processes.\n";
+
+        return 1;
+    }
+
+
     vector<Process> processes(n);
+
 
     // Input process information
     for (int i = 0; i < n; i++) {
 
         processes[i].pid = i + 1;
 
-        cout << "\nProcess P" << processes[i].pid << endl;
+        cout << "\nProcess P"
+             << processes[i].pid
+             << endl;
 
         cout << "Arrival Time: ";
         cin >> processes[i].arrivalTime;
@@ -157,10 +196,21 @@ int main() {
 
         cout << "Priority: ";
         cin >> processes[i].priority;
+
+        if (processes[i].arrivalTime < 0 ||
+            processes[i].burstTime <= 0) {
+
+            cout << "\nInvalid process data.\n";
+
+            return 1;
+        }
     }
 
 
-    // Select scheduling algorithm
+    vector<GanttEntry> gantt;
+
+
+    // Algorithm selection
     int choice;
 
     cout << "\n========================================\n";
@@ -169,6 +219,8 @@ int main() {
 
     cout << "1. FCFS\n";
     cout << "2. SJF\n";
+    cout << "3. Priority Scheduling\n";
+    cout << "4. Round Robin\n";
 
     cout << "\nEnter choice: ";
     cin >> choice;
@@ -181,40 +233,82 @@ int main() {
 
         cout << "\nRunning FCFS Scheduling...\n";
 
-        fcfs(processes);
+        fcfs(processes, gantt);
 
         algorithmName = "FCFS";
-
     }
+
+
     else if (choice == 2) {
 
         cout << "\nRunning SJF Scheduling...\n";
 
-        sjf(processes);
+        sjf(processes, gantt);
 
         algorithmName = "SJF";
-
     }
+
+
+    else if (choice == 3) {
+
+        cout << "\nRunning Priority Scheduling...\n";
+
+        priorityScheduling(
+            processes,
+            gantt);
+
+        algorithmName = "PRIORITY";
+    }
+
+
+    else if (choice == 4) {
+
+        int quantum;
+
+        cout << "\nEnter Time Quantum: ";
+        cin >> quantum;
+
+        if (quantum <= 0) {
+
+            cout << "\nInvalid time quantum.\n";
+
+            return 1;
+        }
+
+        cout << "\nRunning Round Robin Scheduling...\n";
+
+        roundRobin(
+            processes,
+            quantum,
+            gantt);
+
+        algorithmName = "ROUND ROBIN";
+    }
+
+
     else {
 
-        cout << "\nInvalid choice!\n";
+        cout << "\nInvalid choice.\n";
 
-        return 0;
+        return 1;
     }
 
 
     // Display results
     displayPerformance(processes);
 
-    displayGanttChart(processes, algorithmName);
+    displayGanttChart(
+        gantt,
+        algorithmName);
 
-    displayAveragePerformance(processes);
+    displayAveragePerformance(
+        processes);
 
 
     cout << "\n========================================\n";
     cout << "          SIMULATION COMPLETE\n";
     cout << "========================================\n";
 
+
     return 0;
 }
-

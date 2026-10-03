@@ -13,4 +13,10 @@ struct Process {
     int responseTime;
 };
 
+struct GanttEntry {
+    int pid;
+    int startTime;
+    int endTime;
+};
+
 #endif
