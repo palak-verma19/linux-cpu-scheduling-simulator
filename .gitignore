@@ -15,3 +15,6 @@ build/
 # IDE files
 .vscode/
 .idea/
+
+# Test executable
+tests/test_scheduler
