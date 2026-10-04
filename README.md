@@ -109,26 +109,50 @@ Characteristics:
 
 ## 5. Performance Metrics
 
-The simulator calculates:
+The simulator calculates the following performance metrics.
 
 ### Completion Time
 
 The time at which a process finishes execution.
 
+```text
+Completion Time = Time at which process finishes
+```
+
 ### Turnaround Time
 
-```
+The total time taken by a process from arrival until completion.
+
+```text
 Turnaround Time = Completion Time - Arrival Time
+```
+
 ### Waiting Time
+
+The total time a process spends waiting in the ready queue.
+
+```text
 Waiting Time = Turnaround Time - Burst Time
+```
+
 ### Response Time
+
+The time from process arrival until it receives CPU time for the first time.
+
+```text
 Response Time = First CPU Start Time - Arrival Time
+```
 
 ### CPU Utilization
+
+CPU utilization represents the percentage of elapsed execution time during which the CPU is busy.
+
+```text
 CPU Utilization =
 (Total CPU Busy Time / Total Elapsed Time) × 100
+```
 
-###Context Switches
+### Context Switches
 
 A context switch is counted when consecutive Gantt chart entries belong to different processes.
 
