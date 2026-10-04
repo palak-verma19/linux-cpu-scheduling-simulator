@@ -1,7 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <string>
 #include "../include/process.h"
+#include "../include/comparison.h"
 
 using namespace std;
 
@@ -26,7 +28,6 @@ void displayPerformance(
     const vector<Process>& processes) {
 
     cout << "\nPROCESS PERFORMANCE\n";
-
     cout << "-------------------------------------------------\n";
 
     cout << left
@@ -44,25 +45,12 @@ void displayPerformance(
         cout << left
              << setw(8)
              << ("P" + to_string(p.pid))
-
-             << setw(8)
-             << p.arrivalTime
-
-             << setw(8)
-             << p.burstTime
-
-             << setw(8)
-             << p.completionTime
-
-             << setw(8)
-             << p.turnaroundTime
-
-             << setw(8)
-             << p.waitingTime
-
-             << setw(8)
-             << p.responseTime
-
+             << setw(8) << p.arrivalTime
+             << setw(8) << p.burstTime
+             << setw(8) << p.completionTime
+             << setw(8) << p.turnaroundTime
+             << setw(8) << p.waitingTime
+             << setw(8) << p.responseTime
              << endl;
     }
 }
@@ -84,7 +72,7 @@ void displayGanttChart(
 
     cout << " ";
 
-    for (const auto& entry : gantt) {
+    for (size_t i = 0; i < gantt.size(); i++) {
         cout << "---------";
     }
 
@@ -99,7 +87,7 @@ void displayGanttChart(
 
     cout << "\n ";
 
-    for (const auto& entry : gantt) {
+    for (size_t i = 0; i < gantt.size(); i++) {
         cout << "---------";
     }
 
@@ -123,14 +111,9 @@ void displayAveragePerformance(
 
     for (const auto& p : processes) {
 
-        totalWaitingTime +=
-            p.waitingTime;
-
-        totalTurnaroundTime +=
-            p.turnaroundTime;
-
-        totalResponseTime +=
-            p.responseTime;
+        totalWaitingTime += p.waitingTime;
+        totalTurnaroundTime += p.turnaroundTime;
+        totalResponseTime += p.responseTime;
     }
 
     int n = processes.size();
@@ -151,6 +134,84 @@ void displayAveragePerformance(
 
     cout << "Average Response Time   : "
          << totalResponseTime / n
+         << endl;
+}
+
+
+// Display algorithm comparison
+void displayComparison(
+    const vector<AlgorithmResult>& results) {
+
+    cout << "\n\n";
+    cout << "====================================================\n";
+    cout << "        ALGORITHM PERFORMANCE COMPARISON\n";
+    cout << "====================================================\n";
+
+    cout << left
+         << setw(18) << "Algorithm"
+         << setw(15) << "Avg WT"
+         << setw(15) << "Avg TAT"
+         << setw(15) << "Avg RT"
+         << endl;
+
+    cout << "----------------------------------------------------\n";
+
+    cout << fixed
+         << setprecision(2);
+
+    for (const auto& result : results) {
+
+        cout << left
+             << setw(18) << result.name
+             << setw(15) << result.averageWaitingTime
+             << setw(15) << result.averageTurnaroundTime
+             << setw(15) << result.averageResponseTime
+             << endl;
+    }
+
+    cout << "----------------------------------------------------\n";
+
+
+    // Find best algorithms
+    int bestWaiting = 0;
+    int bestTurnaround = 0;
+    int bestResponse = 0;
+
+    for (size_t i = 1; i < results.size(); i++) {
+
+        if (results[i].averageWaitingTime <
+            results[bestWaiting].averageWaitingTime) {
+
+            bestWaiting = i;
+        }
+
+        if (results[i].averageTurnaroundTime <
+            results[bestTurnaround].averageTurnaroundTime) {
+
+            bestTurnaround = i;
+        }
+
+        if (results[i].averageResponseTime <
+            results[bestResponse].averageResponseTime) {
+
+            bestResponse = i;
+        }
+    }
+
+
+    cout << "\nBEST PERFORMANCE\n";
+    cout << "----------------------------\n";
+
+    cout << "Best Average Waiting Time    : "
+         << results[bestWaiting].name
+         << endl;
+
+    cout << "Best Average Turnaround Time : "
+         << results[bestTurnaround].name
+         << endl;
+
+    cout << "Best Average Response Time   : "
+         << results[bestResponse].name
          << endl;
 }
 
@@ -207,10 +268,6 @@ int main() {
     }
 
 
-    vector<GanttEntry> gantt;
-
-
-    // Algorithm selection
     int choice;
 
     cout << "\n========================================\n";
@@ -221,11 +278,13 @@ int main() {
     cout << "2. SJF\n";
     cout << "3. Priority Scheduling\n";
     cout << "4. Round Robin\n";
+    cout << "5. Compare All Algorithms\n";
 
     cout << "\nEnter choice: ";
     cin >> choice;
 
 
+    vector<GanttEntry> gantt;
     string algorithmName;
 
 
@@ -236,6 +295,15 @@ int main() {
         fcfs(processes, gantt);
 
         algorithmName = "FCFS";
+
+        displayPerformance(processes);
+
+        displayGanttChart(
+            gantt,
+            algorithmName);
+
+        displayAveragePerformance(
+            processes);
     }
 
 
@@ -246,6 +314,15 @@ int main() {
         sjf(processes, gantt);
 
         algorithmName = "SJF";
+
+        displayPerformance(processes);
+
+        displayGanttChart(
+            gantt,
+            algorithmName);
+
+        displayAveragePerformance(
+            processes);
     }
 
 
@@ -258,6 +335,15 @@ int main() {
             gantt);
 
         algorithmName = "PRIORITY";
+
+        displayPerformance(processes);
+
+        displayGanttChart(
+            gantt,
+            algorithmName);
+
+        displayAveragePerformance(
+            processes);
     }
 
 
@@ -283,6 +369,40 @@ int main() {
             gantt);
 
         algorithmName = "ROUND ROBIN";
+
+        displayPerformance(processes);
+
+        displayGanttChart(
+            gantt,
+            algorithmName);
+
+        displayAveragePerformance(
+            processes);
+    }
+
+
+    else if (choice == 5) {
+
+        int quantum;
+
+        cout << "\nEnter Time Quantum for Round Robin: ";
+        cin >> quantum;
+
+        if (quantum <= 0) {
+
+            cout << "\nInvalid time quantum.\n";
+
+            return 1;
+        }
+
+        cout << "\nRunning performance comparison...\n";
+
+        vector<AlgorithmResult> results =
+            compareAlgorithms(
+                processes,
+                quantum);
+
+        displayComparison(results);
     }
 
 
@@ -292,17 +412,6 @@ int main() {
 
         return 1;
     }
-
-
-    // Display results
-    displayPerformance(processes);
-
-    displayGanttChart(
-        gantt,
-        algorithmName);
-
-    displayAveragePerformance(
-        processes);
 
 
     cout << "\n========================================\n";

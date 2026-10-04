@@ -8,7 +8,8 @@ SOURCES = \
 	src/fcfs.cpp \
 	src/sjf.cpp \
 	src/priority.cpp \
-	src/round_robin.cpp
+	src/round_robin.cpp \
+	src/comparison.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
