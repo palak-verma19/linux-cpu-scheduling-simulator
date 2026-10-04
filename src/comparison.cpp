@@ -1,7 +1,10 @@
 #include <vector>
+
 #include "comparison.h"
+#include "performance.h"
 
 using namespace std;
+
 
 // Function declarations
 void fcfs(vector<Process>& processes,
@@ -60,7 +63,7 @@ double averageResponseTime(
 }
 
 
-// Run FCFS on a copy of the original processes
+// Run FCFS
 AlgorithmResult runFCFS(
     const vector<Process>& original) {
 
@@ -69,16 +72,23 @@ AlgorithmResult runFCFS(
 
     fcfs(processes, gantt);
 
+    PerformanceMetrics metrics =
+        calculatePerformanceMetrics(
+            processes,
+            gantt);
+
     return {
         "FCFS",
         averageWaitingTime(processes),
         averageTurnaroundTime(processes),
-        averageResponseTime(processes)
+        averageResponseTime(processes),
+        metrics.cpuUtilization,
+        metrics.contextSwitches
     };
 }
 
 
-// Run SJF on a copy of the original processes
+// Run SJF
 AlgorithmResult runSJF(
     const vector<Process>& original) {
 
@@ -87,16 +97,23 @@ AlgorithmResult runSJF(
 
     sjf(processes, gantt);
 
+    PerformanceMetrics metrics =
+        calculatePerformanceMetrics(
+            processes,
+            gantt);
+
     return {
         "SJF",
         averageWaitingTime(processes),
         averageTurnaroundTime(processes),
-        averageResponseTime(processes)
+        averageResponseTime(processes),
+        metrics.cpuUtilization,
+        metrics.contextSwitches
     };
 }
 
 
-// Run Priority Scheduling on a copy
+// Run Priority Scheduling
 AlgorithmResult runPriority(
     const vector<Process>& original) {
 
@@ -105,16 +122,23 @@ AlgorithmResult runPriority(
 
     priorityScheduling(processes, gantt);
 
+    PerformanceMetrics metrics =
+        calculatePerformanceMetrics(
+            processes,
+            gantt);
+
     return {
         "Priority",
         averageWaitingTime(processes),
         averageTurnaroundTime(processes),
-        averageResponseTime(processes)
+        averageResponseTime(processes),
+        metrics.cpuUtilization,
+        metrics.contextSwitches
     };
 }
 
 
-// Run Round Robin on a copy
+// Run Round Robin
 AlgorithmResult runRoundRobin(
     const vector<Process>& original,
     int quantum) {
@@ -122,18 +146,28 @@ AlgorithmResult runRoundRobin(
     vector<Process> processes = original;
     vector<GanttEntry> gantt;
 
-    roundRobin(processes, quantum, gantt);
+    roundRobin(
+        processes,
+        quantum,
+        gantt);
+
+    PerformanceMetrics metrics =
+        calculatePerformanceMetrics(
+            processes,
+            gantt);
 
     return {
         "Round Robin",
         averageWaitingTime(processes),
         averageTurnaroundTime(processes),
-        averageResponseTime(processes)
+        averageResponseTime(processes),
+        metrics.cpuUtilization,
+        metrics.contextSwitches
     };
 }
 
 
-// Compare all scheduling algorithms
+// Compare all algorithms
 vector<AlgorithmResult> compareAlgorithms(
     const vector<Process>& processes,
     int quantum) {
@@ -150,7 +184,9 @@ vector<AlgorithmResult> compareAlgorithms(
         runPriority(processes));
 
     results.push_back(
-        runRoundRobin(processes, quantum));
+        runRoundRobin(
+            processes,
+            quantum));
 
     return results;
 }

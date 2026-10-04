@@ -1,4 +1,4 @@
-CXX = g++
+kCXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude
 
 TARGET = scheduler
@@ -9,7 +9,8 @@ SOURCES = \
 	src/sjf.cpp \
 	src/priority.cpp \
 	src/round_robin.cpp \
-	src/comparison.cpp
+	src/comparison.cpp \
+	src/performance.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 

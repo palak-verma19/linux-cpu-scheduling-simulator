@@ -2,8 +2,10 @@
 #include <vector>
 #include <iomanip>
 #include <string>
+
 #include "../include/process.h"
 #include "../include/comparison.h"
+#include "../include/performance.h"
 
 using namespace std;
 
@@ -101,9 +103,10 @@ void displayGanttChart(
 }
 
 
-// Display average performance
+// Display individual algorithm performance
 void displayAveragePerformance(
-    const vector<Process>& processes) {
+    const vector<Process>& processes,
+    const vector<GanttEntry>& gantt) {
 
     double totalWaitingTime = 0;
     double totalTurnaroundTime = 0;
@@ -117,6 +120,11 @@ void displayAveragePerformance(
     }
 
     int n = processes.size();
+
+    PerformanceMetrics metrics =
+        calculatePerformanceMetrics(
+            processes,
+            gantt);
 
     cout << "\nPERFORMANCE ANALYSIS\n";
     cout << "----------------------------\n";
@@ -135,26 +143,37 @@ void displayAveragePerformance(
     cout << "Average Response Time   : "
          << totalResponseTime / n
          << endl;
+
+    cout << "CPU Utilization         : "
+         << metrics.cpuUtilization
+         << "%"
+         << endl;
+
+    cout << "Context Switches        : "
+         << metrics.contextSwitches
+         << endl;
 }
 
 
-// Display algorithm comparison
+// Display comparison
 void displayComparison(
     const vector<AlgorithmResult>& results) {
 
     cout << "\n\n";
-    cout << "====================================================\n";
-    cout << "        ALGORITHM PERFORMANCE COMPARISON\n";
-    cout << "====================================================\n";
+    cout << "==========================================================================\n";
+    cout << "                 ALGORITHM PERFORMANCE COMPARISON\n";
+    cout << "==========================================================================\n";
 
     cout << left
-         << setw(18) << "Algorithm"
-         << setw(15) << "Avg WT"
-         << setw(15) << "Avg TAT"
-         << setw(15) << "Avg RT"
+         << setw(16) << "Algorithm"
+         << setw(12) << "Avg WT"
+         << setw(12) << "Avg TAT"
+         << setw(12) << "Avg RT"
+         << setw(15) << "CPU Util."
+         << setw(18) << "Context Switches"
          << endl;
 
-    cout << "----------------------------------------------------\n";
+    cout << "--------------------------------------------------------------------------\n";
 
     cout << fixed
          << setprecision(2);
@@ -162,17 +181,18 @@ void displayComparison(
     for (const auto& result : results) {
 
         cout << left
-             << setw(18) << result.name
-             << setw(15) << result.averageWaitingTime
-             << setw(15) << result.averageTurnaroundTime
-             << setw(15) << result.averageResponseTime
+             << setw(16) << result.name
+             << setw(12) << result.averageWaitingTime
+             << setw(12) << result.averageTurnaroundTime
+             << setw(12) << result.averageResponseTime
+             << setw(15) << result.cpuUtilization
+             << setw(18) << result.contextSwitches
              << endl;
     }
 
-    cout << "----------------------------------------------------\n";
+    cout << "--------------------------------------------------------------------------\n";
 
 
-    // Find best algorithms
     int bestWaiting = 0;
     int bestTurnaround = 0;
     int bestResponse = 0;
@@ -295,17 +315,7 @@ int main() {
         fcfs(processes, gantt);
 
         algorithmName = "FCFS";
-
-        displayPerformance(processes);
-
-        displayGanttChart(
-            gantt,
-            algorithmName);
-
-        displayAveragePerformance(
-            processes);
     }
-
 
     else if (choice == 2) {
 
@@ -314,17 +324,7 @@ int main() {
         sjf(processes, gantt);
 
         algorithmName = "SJF";
-
-        displayPerformance(processes);
-
-        displayGanttChart(
-            gantt,
-            algorithmName);
-
-        displayAveragePerformance(
-            processes);
     }
-
 
     else if (choice == 3) {
 
@@ -335,17 +335,7 @@ int main() {
             gantt);
 
         algorithmName = "PRIORITY";
-
-        displayPerformance(processes);
-
-        displayGanttChart(
-            gantt,
-            algorithmName);
-
-        displayAveragePerformance(
-            processes);
     }
-
 
     else if (choice == 4) {
 
@@ -369,17 +359,7 @@ int main() {
             gantt);
 
         algorithmName = "ROUND ROBIN";
-
-        displayPerformance(processes);
-
-        displayGanttChart(
-            gantt,
-            algorithmName);
-
-        displayAveragePerformance(
-            processes);
     }
-
 
     else if (choice == 5) {
 
@@ -403,8 +383,13 @@ int main() {
                 quantum);
 
         displayComparison(results);
-    }
 
+        cout << "\n========================================\n";
+        cout << "          SIMULATION COMPLETE\n";
+        cout << "========================================\n";
+
+        return 0;
+    }
 
     else {
 
@@ -412,6 +397,17 @@ int main() {
 
         return 1;
     }
+
+
+    displayPerformance(processes);
+
+    displayGanttChart(
+        gantt,
+        algorithmName);
+
+    displayAveragePerformance(
+        processes,
+        gantt);
 
 
     cout << "\n========================================\n";

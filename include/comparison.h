@@ -7,9 +7,13 @@
 
 struct AlgorithmResult {
     std::string name;
+
     double averageWaitingTime;
     double averageTurnaroundTime;
     double averageResponseTime;
+
+    double cpuUtilization;
+    int contextSwitches;
 };
 
 std::vector<AlgorithmResult> compareAlgorithms(
